@@ -1,0 +1,47 @@
+// реализация на основе массива с использованием указателей
+
+#include <iostream>
+#include <stdexcept>
+
+class CircularBufferArray {
+private:
+    int* buffer;
+    int head;
+    int tail;
+    int capacity;
+    bool isFull;
+
+public:
+    explicit CircularBufferArray(int size) : buffer(new int[size]), head(0), tail(0), capacity(size), isFull(false) {}
+
+    ~CircularBufferArray() {
+        delete[] buffer;
+    }
+
+    void push(int value) {
+        if (isFull) {
+            throw std::overflow_error("Buffer is full");
+        }
+        buffer[tail] = value;
+        tail = (tail + 1) % capacity;
+        isFull = tail == head;
+    }
+
+    int pop() {
+        if (isEmpty()) {
+            throw std::underflow_error("Buffer is empty");
+        }
+        int value = buffer[head];
+        head = (head + 1) % capacity;
+        isFull = false;
+        return value;
+    }
+
+    bool isEmpty() const {
+        return (!isFull && (head == tail));
+    }
+
+    bool isFullBuffer() const {
+        return isFull;
+    }
+};

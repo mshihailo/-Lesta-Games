@@ -1,0 +1,58 @@
+// реализация на основе динамического массива с автоматическим изменением размера
+
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+
+class CircularBufferDynamic {
+private:
+    std::vector<int> buffer;
+    int head;
+    int tail;
+    int size;
+
+public:
+    explicit CircularBufferDynamic(int initialSize) : buffer(initialSize), head(0), tail(0), size(0) {}
+
+    void push(int value) {
+        if (size == buffer.size()) {
+            // Увеличение размера буфера при его заполнении
+            resize();
+        }
+        buffer[tail] = value;
+        tail = (tail + 1) % buffer.size();
+        ++size;
+    }
+
+    int pop() {
+        if (isEmpty()) {
+            throw std::underflow_error("Buffer is empty");
+        }
+        int value = buffer[head];
+        head = (head + 1) % buffer.size();
+        --size;
+        return value;
+    }
+
+    bool isEmpty() const {
+        return size == 0;
+    }
+
+    int getCapacity() const {
+        return buffer.size();
+    }
+
+private:
+    void resize() {
+        int newCapacity = buffer.size() * 2;
+        std::vector<int> newBuffer(newCapacity);
+        
+        for (int i = 0; i < size; ++i) {
+            newBuffer[i] = buffer[(head + i) % buffer.size()];
+        }
+        
+        buffer = std::move(newBuffer);
+        head = 0;
+        tail = size;
+    }
+};
